@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
@@ -18,6 +18,8 @@ import {
   Layers,
   ChevronRight,
   ShieldAlert,
+  ExternalLink,
+  Lock,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -99,6 +101,9 @@ export default function ReportComplaint() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageFileName, setImageFileName] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [gpsCoords, setGpsCoords] = useState({ lat: 12.9716, lng: 77.5946 });
+  const [isGpsPinned, setIsGpsPinned] = useState(false);
+  const [pinnedDetails, setPinnedDetails] = useState(null);
   const [aiSuggestedCategory, setAiSuggestedCategory] = useState(null);
   const [aiScore, setAiScore] = useState(65);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
@@ -575,3 +580,4 @@ export default function ReportComplaint() {
     </div>
   );
 }
+
