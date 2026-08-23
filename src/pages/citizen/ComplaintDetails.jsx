@@ -4,19 +4,14 @@ import {
   MapPin,
   Calendar,
   User,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   MessageSquare,
   Send,
   Cpu,
   ArrowLeft,
-  Shield,
-  FileCheck,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
-import Badge from '../../components/common/Badge';
 import StatusBadge from '../../components/common/StatusBadge';
 import PageHeader from '../../components/common/PageHeader';
 import { MOCK_CITIZEN_COMPLAINTS } from './CitizenDashboard';
@@ -72,7 +67,7 @@ export default function ComplaintDetails() {
   };
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto bg-white">
       
       {/* HEADER */}
       <PageHeader
@@ -106,15 +101,15 @@ export default function ComplaintDetails() {
               </p>
 
               <div className="grid grid-cols-2 gap-4 text-xs">
-                <div className="p-3 bg-white border border-slate-200 rounded-lg">
+                <div className="p-3 bg-white border border-slate-200 rounded-xl">
                   <div className="text-slate-400 font-medium">Location</div>
                   <div className="font-bold text-slate-800 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <MapPin className="w-3.5 h-3.5 text-rose-600 shrink-0" />
                     <span className="truncate">{complaint.location}</span>
                   </div>
                 </div>
 
-                <div className="p-3 bg-white border border-slate-200 rounded-lg">
+                <div className="p-3 bg-white border border-slate-200 rounded-xl">
                   <div className="text-slate-400 font-medium">Reported Date</div>
                   <div className="font-bold text-slate-800 flex items-center gap-1 mt-0.5">
                     <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
@@ -133,9 +128,9 @@ export default function ComplaintDetails() {
                   <div
                     className={`absolute -left-[31px] top-0 w-4 h-4 rounded-full border-2 bg-white flex items-center justify-center ${
                       step.status === 'completed'
-                        ? 'border-emerald-600 bg-emerald-600 text-white'
+                        ? 'border-rose-600 bg-rose-600 text-white'
                         : step.status === 'current'
-                        ? 'border-sky-600 bg-white'
+                        ? 'border-rose-500 bg-white'
                         : 'border-slate-300 bg-white'
                     }`}
                   >
@@ -175,7 +170,7 @@ export default function ComplaintDetails() {
                   placeholder="Type a message or response..."
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="flex-1 px-3 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
                 />
                 <Button type="submit" variant="primary" size="sm" icon={Send}>
                   Send
@@ -193,7 +188,7 @@ export default function ComplaintDetails() {
           <Card title="Assigned Field Officer" headerIcon={User}>
             <div className="space-y-3 text-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-sky-100 text-sky-700 font-bold flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 font-bold flex items-center justify-center border border-rose-200">
                   SO
                 </div>
                 <div>
@@ -201,7 +196,7 @@ export default function ComplaintDetails() {
                   <p className="text-slate-500">Public Works Department</p>
                 </div>
               </div>
-              <div className="p-2.5 bg-slate-50 rounded-lg text-slate-600 font-mono text-[11px]">
+              <div className="p-2.5 bg-slate-50 rounded-lg text-slate-600 font-mono text-[11px] border border-slate-200">
                 Zonal Ward: Indiranagar 14
               </div>
             </div>
@@ -212,12 +207,12 @@ export default function ComplaintDetails() {
             <div className="space-y-3 text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-slate-600">Urgency Priority Score</span>
-                <span className="font-bold text-rose-600 font-mono">{complaint.priorityScore}/100</span>
+                <span className="font-bold text-rose-600 font-mono text-sm">{complaint.priorityScore}/100</span>
               </div>
               <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                 <div className="bg-rose-500 h-2 rounded-full" style={{ width: `${complaint.priorityScore}%` }} />
               </div>
-              <div className="p-3 bg-emerald-50 text-emerald-900 rounded-xl text-[11px] space-y-1">
+              <div className="p-3 bg-rose-50 text-rose-900 rounded-xl text-[11px] space-y-1 border border-rose-200">
                 <strong className="font-bold">Duplicate Scan Passed:</strong>
                 <p>No identical reports registered within 100 meters.</p>
               </div>

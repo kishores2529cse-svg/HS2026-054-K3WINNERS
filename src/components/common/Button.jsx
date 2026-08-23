@@ -2,18 +2,19 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 const variants = {
-  primary: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm focus:ring-emerald-500',
-  secondary: 'bg-slate-800 hover:bg-slate-900 text-white shadow-sm focus:ring-slate-700',
-  outline: 'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm focus:ring-emerald-500',
-  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 focus:ring-slate-400',
-  danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm focus:ring-rose-500',
-  success: 'bg-teal-600 hover:bg-teal-700 text-white shadow-sm focus:ring-teal-500',
+  primary: 'bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white shadow-xs hover:shadow-md hover:shadow-rose-600/20 focus:ring-rose-500 font-semibold',
+  secondary: 'bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white shadow-xs focus:ring-slate-700 font-semibold',
+  outline: 'border border-slate-300 bg-white hover:bg-rose-50/50 hover:border-rose-300 hover:text-rose-700 text-slate-700 shadow-2xs focus:ring-rose-400 font-medium',
+  ghost: 'text-slate-600 hover:bg-rose-50/60 hover:text-rose-700 focus:ring-rose-400 font-medium',
+  danger: 'bg-rose-700 hover:bg-rose-800 active:bg-rose-900 text-white shadow-xs focus:ring-rose-600 font-semibold',
+  mild: 'bg-rose-50 hover:bg-rose-100 active:bg-rose-200/80 text-rose-700 border border-rose-200 shadow-2xs focus:ring-rose-400 font-semibold',
+  success: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs focus:ring-emerald-500 font-semibold',
 };
 
 const sizes = {
-  sm: 'px-3 py-1.5 text-xs font-medium rounded-md gap-1.5',
-  md: 'px-4 py-2 text-sm font-medium rounded-lg gap-2',
-  lg: 'px-5 py-2.5 text-base font-semibold rounded-lg gap-2.5',
+  sm: 'px-3 py-1.5 text-xs rounded-lg gap-1.5',
+  md: 'px-4 py-2 text-sm rounded-xl gap-2',
+  lg: 'px-5 py-2.5 text-base rounded-xl gap-2.5',
 };
 
 export default function Button({

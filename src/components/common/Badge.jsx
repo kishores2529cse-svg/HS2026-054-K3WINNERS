@@ -2,10 +2,10 @@ import React from 'react';
 
 const badgeVariants = {
   default: 'bg-slate-100 text-slate-800 border-slate-200',
-  primary: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  success: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+  primary: 'bg-rose-50 text-rose-700 border-rose-200',
+  success: 'bg-emerald-50 text-emerald-800 border-emerald-200',
   warning: 'bg-amber-50 text-amber-800 border-amber-200',
-  danger: 'bg-rose-50 text-rose-700 border-rose-200',
+  danger: 'bg-rose-100 text-rose-800 border-rose-300',
   info: 'bg-sky-50 text-sky-700 border-sky-200',
   purple: 'bg-purple-50 text-purple-700 border-purple-200',
   outline: 'bg-transparent text-slate-700 border-slate-300',

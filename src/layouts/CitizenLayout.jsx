@@ -14,15 +14,15 @@ export default function CitizenLayout() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       {/* Citizen Secondary Portal Bar */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-30 shadow-2xs">
+      <div className="bg-white border-b border-slate-200/90 sticky top-16 z-30 shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 overflow-x-auto no-scrollbar">
             <div className="flex items-center gap-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200 shrink-0">
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 shrink-0">
                 Citizen Portal
               </span>
               <nav className="flex items-center gap-1 shrink-0">
@@ -33,10 +33,10 @@ export default function CitizenLayout() {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
                         active
-                          ? 'bg-emerald-600 text-white shadow-2xs'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          ? 'bg-rose-600 text-white shadow-xs shadow-rose-600/20'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -48,7 +48,7 @@ export default function CitizenLayout() {
             </div>
 
             <div className="hidden sm:flex items-center gap-2 text-xs text-slate-500 shrink-0">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <UserCheck className="w-3.5 h-3.5 text-rose-600" />
               <span>Logged in as <strong>Citizen</strong></span>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function CitizenLayout() {
       </div>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white">
         <Outlet />
       </main>
 

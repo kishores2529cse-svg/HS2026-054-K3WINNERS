@@ -17,10 +17,10 @@ export default function Input({
   const inputId = id || name || `input-${Math.random().toString(36).substring(2, 9)}`;
 
   const baseInputStyles = `
-    w-full px-3.5 py-2.5 bg-white border text-sm text-slate-900 rounded-lg shadow-xs transition duration-150
-    placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+    w-full px-3.5 py-2.5 bg-white border text-sm text-slate-900 rounded-xl shadow-2xs transition duration-150
+    placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500
     disabled:bg-slate-50 disabled:text-slate-500 disabled:cursor-not-allowed
-    ${error ? 'border-rose-300 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-300'}
+    ${error ? 'border-rose-300 focus:ring-rose-500 focus:border-rose-500' : 'border-slate-300/90 hover:border-slate-400'}
     ${Icon ? 'pl-10' : ''}
     ${className}
   `;
@@ -28,7 +28,7 @@ export default function Input({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+        <label htmlFor={inputId} className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
           {label}
           {required && <span className="text-rose-500 ml-1">*</span>}
         </label>

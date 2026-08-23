@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
-import { LayoutDashboard, CheckSquare, Map, BarChart2, UserCheck, Info } from 'lucide-react';
+import { LayoutDashboard, Info } from 'lucide-react';
 
 export default function OfficerLayout() {
   const location = useLocation();
@@ -12,7 +12,7 @@ export default function OfficerLayout() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
 
       {/* Officer Sub-header */}
@@ -20,7 +20,7 @@ export default function OfficerLayout() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 overflow-x-auto">
             <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-sky-400 bg-sky-950/80 px-2.5 py-1 rounded-md border border-sky-800 shrink-0">
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-400 bg-rose-950/80 px-2.5 py-1 rounded-md border border-rose-800 shrink-0">
                 Officer Portal
               </span>
               <nav className="flex items-center gap-1 shrink-0">
@@ -33,7 +33,7 @@ export default function OfficerLayout() {
                       to={item.path}
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
                         active
-                          ? 'bg-sky-600 text-white shadow-2xs'
+                          ? 'bg-rose-600 text-white shadow-2xs font-semibold'
                           : 'text-slate-300 hover:text-white hover:bg-slate-800'
                       }`}
                     >
@@ -45,7 +45,7 @@ export default function OfficerLayout() {
               </nav>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-sky-300 shrink-0">
+            <div className="flex items-center gap-2 text-xs text-rose-300 shrink-0">
               <Info className="w-3.5 h-3.5" />
               <span>Officer Module (Maintained by <strong>Kalai</strong>)</span>
             </div>
@@ -53,7 +53,7 @@ export default function OfficerLayout() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-white">
         <Outlet />
       </main>
 
