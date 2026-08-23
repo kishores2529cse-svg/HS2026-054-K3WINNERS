@@ -101,6 +101,7 @@ export default function ReportComplaint() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageFileName, setImageFileName] = useState('');
   const [isLocating, setIsLocating] = useState(false);
+  const [showGpsModal, setShowGpsModal] = useState(false);
   const [gpsCoords, setGpsCoords] = useState({ lat: 12.9716, lng: 77.5946 });
   const [isGpsPinned, setIsGpsPinned] = useState(false);
   const [pinnedDetails, setPinnedDetails] = useState(null);
@@ -513,6 +514,47 @@ export default function ReportComplaint() {
         </div>
 
       </form>
+
+      {/* ALLOW CURRENT LOCATION PERMISSION POPUP MODAL */}
+      {showGpsModal && (
+        <Modal
+          isOpen={showGpsModal}
+          onClose={() => setShowGpsModal(false)}
+          title="Location Permission Request"
+          subtitle="CivicConnect wants to access your current physical location"
+          primaryAction={{
+            label: 'Allow Current Location',
+            onClick: handleConfirmAllowLocation,
+            variant: 'primary',
+          }}
+          secondaryAction={{
+            label: 'Cancel',
+            onClick: () => setShowGpsModal(false),
+          }}
+        >
+          <div className="space-y-4 text-center py-2">
+            <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto shadow-sm">
+              <Compass className="w-9 h-9 animate-spin" />
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-base font-bold text-slate-900">Allow CivicConnect to access your location?</h4>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
+                By clicking <strong>"Allow Current Location"</strong>, your browser will capture your exact physical spot address and GPS coordinates through Google Maps reference.
+              </p>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-2">
+              <div className="flex items-center gap-2 text-rose-700 font-bold">
+                <Lock className="w-4 h-4" />
+                <span>Permanent Spot Address Guarantee</span>
+              </div>
+              <p className="text-slate-500 text-[11px] leading-relaxed">
+                Once captured, this exact spot address remains permanently saved for your report. Even if you return to your home or travel elsewhere, officers will navigate directly to this spot.
+              </p>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* SUCCESS CONFIRMATION MODAL */}
       {submittedTicket && (
