@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Shield,
@@ -18,14 +18,42 @@ import {
   Cpu,
   BarChart3,
   Search,
+  User as UserIcon,
+  LogIn,
+  LogOut,
 } from 'lucide-react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
-import StatusBadge from '../components/common/StatusBadge';
+
+import ProblemCard from '../components/landing/ProblemCard';
+import SolutionCard from '../components/landing/SolutionCard';
+import CivicPhoneMockup from '../components/landing/CivicPhoneMockup';
+import InteractiveCursor from '../components/landing/InteractiveCursor';
+import { StressedPersonGraphic, HappyPersonGraphic } from '../components/landing/StressedToHappyPerson';
 
 export default function Landing() {
-  const [activeRoleTab, setActiveRoleTab] = useState('citizen');
+  const containerRef = useRef(null);
+
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('civicconnect_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  const problemCardsData = [
+    { type: 'potholes', title: 'POTHOLES', subtitle: 'Dangerous road craters & water pools' },
+    { type: 'street_lights', title: 'BROKEN STREET LIGHTS', subtitle: 'Dark streets & faulty lighting' },
+    { type: 'water_leakage', title: 'WATER LEAKAGE', subtitle: 'Burst pipes & wasted water' },
+    { type: 'cctv', title: 'BROKEN CCTV', subtitle: 'Offline cameras & security gaps' },
+    { type: 'garbage_dumps', title: 'GARBAGE DUMPS', subtitle: 'Accumulated waste & toxic fumes' },
+    { type: 'open_manholes', title: 'OPEN MANHOLES', subtitle: 'Exposed street hazard pits' },
+  ];
 
   const stats = [
     { label: 'Issues Resolved', value: '14,850+', icon: CheckCircle2, change: '+12% this month' },
@@ -59,7 +87,7 @@ export default function Landing() {
     {
       step: '04',
       title: 'Real-time Resolution Tracking',
-      desc: 'Officers update status with proof of work. Citizens get instant SMS/web notifications.',
+      desc: 'Officers update status with proof of work. Citizens get instant notifications.',
       icon: FileCheck,
       badge: 'Resolution',
     },
@@ -99,335 +127,353 @@ export default function Landing() {
   ];
 
   return (
-    <div className="space-y-20 pb-16 bg-white">
+    <div ref={containerRef} className="relative min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden selection:bg-emerald-500 selection:text-slate-950">
       
-      {/* HERO SECTION */}
-      <section className="relative pt-12 pb-8 overflow-hidden bg-white">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-rose-50/70 to-transparent -z-10 rounded-3xl" />
+      {/* Custom Red -> Green Interactive Mouse Cursor */}
+      <InteractiveCursor containerRef={containerRef} />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      {/* TOP NAVIGATION BAR */}
+      <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-md border-b border-slate-800/80 px-4 sm:px-6 lg:px-8 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* Brand Logo */}
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 via-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-950 group-hover:scale-105 transition-transform">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-black text-base tracking-tight text-white font-mono group-hover:text-emerald-400 transition-colors">
+                CivicConnect
+              </span>
+              <span className="text-[9px] font-mono text-emerald-400/80">K3 WINNERS PLATFORM</span>
+            </div>
+          </Link>
+
+          {/* Right Action Section */}
+          <div className="flex items-center gap-3">
             
-            {/* Left Content */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold shadow-2xs">
-                <Sparkles className="w-4 h-4 text-rose-600 animate-pulse" />
-                <span>Next-Gen Civic Governance Platform</span>
+            {user ? (
+              /* LOGGED IN: SMALL CIRCLED PROFILE AVATAR IN TOP RIGHT CORNER */
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center gap-2 p-1 rounded-full bg-slate-900 border border-emerald-500/50 hover:border-emerald-400 transition-all cursor-pointer shadow-[0_0_15px_rgba(34,197,94,0.3)] active:scale-95"
+                  title={`${user.name} (${user.role})`}
+                >
+                  <div className="relative w-8 h-8 rounded-full overflow-hidden border border-emerald-400">
+                    <img
+                      src={user.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80"}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80";
+                      }}
+                    />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-950" />
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-200 hidden sm:block px-1">
+                    {user.name.split(' ')[0]}
+                  </span>
+                </button>
+
+                {/* Profile Dropdown Menu */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-60 bg-slate-900/95 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl p-3.5 space-y-3 z-50 animate-in fade-in zoom-in-95">
+                    <div className="flex items-center gap-3 border-b border-slate-800 pb-3">
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover border border-emerald-500/60"
+                      />
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-slate-100 truncate">{user.name}</div>
+                        <div className="text-[10px] text-slate-400 font-mono truncate">{user.email}</div>
+                        <span className="inline-block text-[9px] font-mono font-bold uppercase tracking-wider text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-md mt-1 border border-emerald-800/60">
+                          {user.role} Portal
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Link
+                        to={user.role === 'officer' ? '/officer/dashboard' : user.role === 'admin' ? '/admin/dashboard' : '/citizen/dashboard'}
+                        className="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 hover:bg-emerald-900/60 transition-colors"
+                      >
+                        <span>Open Dashboard</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.removeItem('civicconnect_user');
+                          setUser(null);
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-red-400 hover:bg-red-950/40 hover:text-red-300 transition-colors cursor-pointer"
+                      >
+                        <span>Sign Out</span>
+                        <LogOut className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                Report. Track. <br />
-                <span className="bg-gradient-to-r from-rose-600 via-rose-600 to-red-700 bg-clip-text text-transparent">
-                  Resolve.
-                </span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-                One smart platform to report civic issues, connect them to the right department, and track resolution from start to finish. Powered by AI for faster response and total transparency.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link to="/citizen/report">
-                  <Button variant="primary" size="lg" icon={PlusCircle} className="px-7 py-3 shadow-md shadow-rose-600/25">
-                    Report an Issue
-                  </Button>
+            ) : (
+              /* NOT LOGGED IN: LOG IN BUTTON */
+              <div className="flex items-center gap-2">
+                <Link to="/login">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold font-mono bg-slate-900 text-slate-200 border border-slate-700 hover:border-emerald-500 hover:text-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <LogIn className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Log In</span>
+                  </button>
                 </Link>
-                <Link to="/about">
-                  <Button variant="outline" size="lg" icon={ArrowRight} iconPosition="right" className="px-7 py-3">
-                    Explore Platform
-                  </Button>
+                <Link to="/register" className="hidden sm:inline-block">
+                  <button
+                    type="button"
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    Register
+                  </button>
                 </Link>
               </div>
+            )}
 
-              {/* Quick indicators */}
-              <div className="pt-6 border-t border-slate-200 grid grid-cols-3 gap-4 text-xs text-slate-600 font-medium">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>No login needed to explore</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>Instant SMS/Email alerts</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-rose-600 shrink-0" />
-                  <span>Geo-tagged verification</span>
-                </div>
+          </div>
+
+        </div>
+      </header>
+
+      {/* Background Cyber Grid */}
+      <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-30 pointer-events-none -z-10" />
+
+      {/* HERO SECTION - CINEMATIC INTERACTIVE DEMO */}
+      <section className="relative pt-8 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10">
+        
+        {/* TOP TITLE BANNER */}
+        <div className="text-center space-y-4 max-w-4xl mx-auto">
+          
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono font-bold">
+            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <span className="text-slate-300">PROBLEM</span>
+            <span className="text-emerald-400">→ AI ACTION →</span>
+            <span className="text-emerald-400 font-bold">RESOLUTION</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+            From <span className="text-red-500 underline decoration-red-500/40">Problems</span> to{' '}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-transparent drop-shadow-[0_0_25px_rgba(34,197,94,0.4)]">
+              Progress
+            </span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            CivicConnect empowers citizens to report, AI to act, and cities to improve — together.
+          </p>
+        </div>
+
+        {/* CINEMATIC LAYOUT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+
+          {/* LEFT COLUMN: THE PROBLEM (Red Theme - 4 Cols) */}
+          <div className="lg:col-span-4 space-y-5 problem-zone">
+            <div className="flex items-center justify-between border-b border-red-950/60 pb-2">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" />
+                <h2 className="text-base sm:text-lg font-black tracking-wider text-red-500 uppercase font-mono">
+                  THE PROBLEM
+                </h2>
               </div>
+              <span className="text-[10px] font-mono text-red-400/80">Civic issues go unnoticed</span>
             </div>
 
-            {/* Right Visual Interactive Preview Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative bg-white rounded-3xl p-6 shadow-xl border border-slate-200 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            {/* 6 Problem Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {problemCardsData.map((prob) => (
+                <ProblemCard key={prob.type} type={prob.type} title={prob.title} subtitle={prob.subtitle} />
+              ))}
+            </div>
+
+            {/* Stressed Person Storytelling Graphic */}
+            <div className="pt-2">
+              <StressedPersonGraphic />
+            </div>
+          </div>
+
+          {/* RIGHT 8 COLUMNS CONTAINER: Center Phone + Right Solution + Wide Horizontal Action Card */}
+          <div className="lg:col-span-8 flex flex-col justify-between space-y-6">
+            
+            {/* TOP ROW: Center Phone (4 Cols) + Right Solution (4 Cols) */}
+            <div className="grid grid-cols-1 lg:grid-cols-8 gap-8 items-start relative">
+              
+              {/* SVG Energy Flow Line */}
+              <svg className="absolute -inset-10 w-full h-full pointer-events-none hidden lg:block -z-10" viewBox="0 0 400 600">
+                <defs>
+                  <linearGradient id="redToGreenFlow" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
+                    <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity="0.8" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M 20 200 C 150 180, 250 250, 380 200 M 20 400 C 150 380, 250 450, 380 400"
+                  fill="none"
+                  stroke="url(#redToGreenFlow)"
+                  strokeWidth="2.5"
+                  className="animate-energy-flow"
+                />
+              </svg>
+
+              {/* Center Phone (4 Cols) */}
+              <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-4">
+                <CivicPhoneMockup />
+              </div>
+
+              {/* Right Solution (4 Cols) */}
+              <div className="lg:col-span-4 space-y-4 solution-zone">
+                <div className="flex items-center justify-between border-b border-emerald-950/60 pb-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
-                    <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                      Live Ticket Preview #CC-8492
-                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                    <h2 className="text-base sm:text-lg font-black tracking-wider text-emerald-400 uppercase font-mono">
+                      THE SOLUTION
+                    </h2>
                   </div>
-                  <Badge variant="danger" size="sm">High Priority</Badge>
+                  <span className="text-[10px] font-mono text-emerald-400/80">Smart AI Dispatch</span>
                 </div>
 
-                {/* Simulated Complaint Visual */}
-                <div className="bg-slate-900 text-white rounded-2xl p-4 relative overflow-hidden border border-slate-800">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="text-[10px] uppercase text-rose-400 font-bold tracking-wider mb-1">
-                        Category: Road Infrastructure
-                      </div>
-                      <h4 className="font-semibold text-sm text-white">Large Pothole near Main Market Crossing</h4>
-                      <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-rose-400" /> Sector 4, MG Road, Ward 12
-                      </p>
-                    </div>
-                    <StatusBadge status="In Progress" size="sm" />
-                  </div>
+                <SolutionCard
+                  role="citizen"
+                  title="FOR CITIZENS"
+                  description="Easy Reporting & Total Transparency. Report issues with photos & GPS coordinates."
+                />
+                <SolutionCard
+                  role="officer"
+                  title="FOR OFFICERS"
+                  description="AI-Powered Smart Dispatch. Classifies issues, removes duplicates, and assigns zonal teams."
+                />
+                <SolutionCard
+                  role="admin"
+                  title="FOR ADMINS"
+                  description="Actionable City Analytics. Live dashboards, hotspot maps, and resource allocation."
+                />
 
-                  <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                    <span>AI Priority Rating: <strong>88/100</strong></span>
-                    <span>Officer Assigned: <strong>R. Kumar (Public Works)</strong></span>
-                  </div>
+                {/* Happy Person Storytelling Graphic */}
+                <div className="pt-2">
+                  <HappyPersonGraphic />
                 </div>
+              </div>
 
-                {/* Simulated AI Analysis Box */}
-                <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3.5 flex items-start gap-3 text-xs text-rose-950">
-                  <Cpu className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="font-bold">AI Routing Engine:</strong>
-                    <p className="text-rose-800 mt-0.5">
-                      Categorized as Public Safety Hazard. Auto-dispatched to PWD Road Maintenance Dept. Duplicate checks passed (0 duplicate tickets found).
-                    </p>
-                  </div>
-                </div>
+            </div>
 
-                {/* Progress Step */}
-                <div className="space-y-2 pt-1">
-                  <div className="flex justify-between text-xs font-semibold text-slate-700">
-                    <span>Resolution Workflow</span>
-                    <span className="text-rose-600 font-bold">Step 3 of 4</span>
-                  </div>
-                  <div className="w-full bg-slate-100 rounded-full h-2">
-                    <div className="bg-rose-600 h-2 rounded-full w-3/4 transition-all duration-500" />
-                  </div>
+            {/* HORIZONTALLY EXPANDED WIDE CTA CARD FILLING ALL RIGHT SIDE EMPTY SPACE */}
+            <div className="w-full bg-gradient-to-r from-emerald-950/95 via-teal-900/95 to-slate-900/95 rounded-2xl p-6 border border-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.35)] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-emerald-400 hover:shadow-[0_0_50px_rgba(16,185,129,0.55)] transition-all duration-300 group">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-emerald-950 border border-emerald-800 text-[10px] font-mono font-bold text-emerald-400">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  <span>TAKE ACTION TODAY</span>
                 </div>
+                <h3 className="text-xl sm:text-2xl font-black tracking-tight text-white font-mono leading-tight">
+                  Stronger Communities. <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">Better Tomorrow.</span>
+                </h3>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
+                  Together, let us build a cleaner, safer, smarter city. It takes less than a minute to submit a photo & geo-tagged report.
+                </p>
+              </div>
+
+              <div className="shrink-0 w-full md:w-auto">
+                <Link to="/citizen/report">
+                  <button
+                    type="button"
+                    className="w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 text-slate-950 hover:from-emerald-300 hover:to-teal-200 active:scale-95 shadow-xl shadow-emerald-950/80 transition-all duration-200 cursor-pointer group-hover:scale-105"
+                  >
+                    <PlusCircle className="w-5 h-5 shrink-0" />
+                    <span>Report Now</span>
+                    <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </Link>
               </div>
             </div>
 
           </div>
+
         </div>
+
+        {/* BOTTOM FEATURE INDICATORS STRIP */}
+        <div className="pt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+            <Cpu className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
+            <div className="text-xs font-bold text-slate-100">AI Powered</div>
+            <div className="text-[10px] text-slate-400">Smart Classification</div>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+            <Clock className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
+            <div className="text-xs font-bold text-slate-100">Real-time Tracking</div>
+            <div className="text-[10px] text-slate-400">Full Transparency</div>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+            <Sparkles className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
+            <div className="text-xs font-bold text-slate-100">Faster Resolution</div>
+            <div className="text-[10px] text-slate-400">Better Cities</div>
+          </div>
+          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+            <BarChart3 className="w-5 h-5 text-emerald-400 mx-auto mb-1" />
+            <div className="text-xs font-bold text-slate-100">Data Driven</div>
+            <div className="text-[10px] text-slate-400">Smarter Decisions</div>
+          </div>
+        </div>
+
       </section>
 
-      {/* WORKFLOW BY ROLE SECTION */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <Badge variant="primary" size="md">Multi-Role Architecture</Badge>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-            Tailored Experiences for Every Stakeholder
-          </h2>
-        </div>
+      {/* PLATFORM WORKFLOW STEPS */}
+      <section className="py-16 bg-slate-900/50 border-y border-slate-800/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <Badge variant="primary" size="md">Transparent Process</Badge>
+            <h2 className="text-3xl font-black text-slate-100 tracking-tight">
+              How CivicConnect Works
+            </h2>
+            <p className="text-slate-400 text-sm">
+              From citizen photo upload to field verification and final fix — designed for speed and accountability.
+            </p>
+          </div>
 
-        {/* Role Tabs */}
-        <div className="flex justify-center gap-2 max-w-md mx-auto p-1.5 bg-slate-100 rounded-xl border border-slate-200">
-          <button
-            onClick={() => setActiveRoleTab('citizen')}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeRoleTab === 'citizen'
-                ? 'bg-white text-rose-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Citizen Workflow
-          </button>
-          <button
-            onClick={() => setActiveRoleTab('officer')}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeRoleTab === 'officer'
-                ? 'bg-white text-sky-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Officer Dashboard
-          </button>
-          <button
-            onClick={() => setActiveRoleTab('admin')}
-            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-              activeRoleTab === 'admin'
-                ? 'bg-white text-purple-700 shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Admin Governance
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xs">
-          {activeRoleTab === 'citizen' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <Badge variant="primary" size="sm">Lead: Kishore S</Badge>
-                <h3 className="text-xl font-bold text-slate-900">Seamless Citizen Reporting</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Citizens can report issues in under 60 seconds. Simply snap a photo, add brief details, select location on map, and track live status.
-                </p>
-                <ul className="space-y-2 text-xs text-slate-700 font-medium">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-rose-600" /> Photo upload with location auto-tagging
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-rose-600" /> Live complaint tracker with stage timeline
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-rose-600" /> Transparent officer details & completion proof
-                  </li>
-                </ul>
-                <Link to="/citizen/dashboard">
-                  <Button variant="primary" size="sm" className="mt-2">
-                    Go to Citizen Portal
-                  </Button>
-                </Link>
-              </div>
-              <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                  <span>My Active Complaint</span>
-                  <StatusBadge status="Pending" size="sm" />
-                </div>
-                <div className="text-sm font-semibold text-slate-900">Garbage Accumulation on Corner Street</div>
-                <div className="text-xs text-slate-500">Reported 2 hours ago • Sanitation Dept</div>
-                <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs text-slate-600">
-                  Status: Assigned to Field Inspector. Verification in progress.
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeRoleTab === 'officer' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <Badge variant="info" size="sm">Module: Kalai</Badge>
-                <h3 className="text-xl font-bold text-slate-900">Officer Task Command Center</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Zonal officers view assigned complaints sorted by AI priority, update status, upload resolution proof photos, and close tickets.
-                </p>
-                <ul className="space-y-2 text-xs text-slate-700 font-medium">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-sky-600" /> Priority queue ordered by urgency score
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-sky-600" /> Map view of assigned zonal tasks
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-sky-600" /> Status update workflow with image upload
-                  </li>
-                </ul>
-                <Link to="/officer/dashboard">
-                  <Button variant="secondary" size="sm" className="mt-2">
-                    Open Officer Dashboard
-                  </Button>
-                </Link>
-              </div>
-              <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 space-y-3">
-                <div className="text-xs text-sky-400 font-mono font-bold uppercase">Officer Worklist</div>
-                <div className="flex justify-between items-center text-xs">
-                  <span>Assigned Complaints: <strong>14</strong></span>
-                  <span className="text-amber-400">High Urgency: <strong>3</strong></span>
-                </div>
-                <div className="p-3 bg-slate-800 rounded-xl text-xs space-y-1">
-                  <div className="font-semibold text-white">Water Main Leakage - Ward 8</div>
-                  <div className="text-slate-400">Assigned 30m ago • Priority Score 94</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeRoleTab === 'admin' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <Badge variant="purple" size="sm">Module: Kanishk</Badge>
-                <h3 className="text-xl font-bold text-slate-900">City Governance & Analytics</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Municipal administrators oversee overall city health, department resolution speeds, officer performance, and complaint hotspot heatmaps.
-                </p>
-                <ul className="space-y-2 text-xs text-slate-700 font-medium">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-purple-600" /> City-wide complaint metrics & SLA tracking
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-purple-600" /> Department allocation & officer management
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-purple-600" /> AI Insights on frequent hotspot zones
-                  </li>
-                </ul>
-                <Link to="/admin/dashboard">
-                  <Button variant="outline" size="sm" className="mt-2">
-                    Access Admin Center
-                  </Button>
-                </Link>
-              </div>
-              <div className="bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 space-y-3">
-                <div className="text-xs text-purple-400 font-mono font-bold uppercase">Municipal Intelligence</div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="p-2.5 bg-slate-800 rounded-lg">
-                    <div className="text-slate-400">Resolution Rate</div>
-                    <div className="text-lg font-bold text-emerald-400">94.2%</div>
-                  </div>
-                  <div className="p-2.5 bg-slate-800 rounded-lg">
-                    <div className="text-slate-400">Active Hotspots</div>
-                    <div className="text-lg font-bold text-amber-400">4 Zones</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {workflowSteps.map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <div key={idx} className="relative flex flex-col justify-between h-full p-6 rounded-2xl bg-slate-950 border border-slate-800 hover:border-emerald-500/60 transition-colors shadow-lg">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-black text-slate-700 font-mono">{step.step}</span>
+                      <Badge variant="primary" size="sm">{step.badge}</Badge>
+                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 flex items-center justify-center border border-emerald-800/60">
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-100">{step.title}</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">{step.desc}</p>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <Badge variant="primary" size="md">Transparent Process</Badge>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tight">
-            How CivicConnect Works
-          </h2>
-          <p className="text-slate-600 text-sm">
-            From citizen photo upload to field verification and final fix — designed for speed and accountability.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {workflowSteps.map((step, idx) => {
-            const Icon = step.icon;
-            return (
-              <Card key={idx} hoverEffect className="relative flex flex-col justify-between h-full rounded-2xl border border-slate-200">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black text-slate-300 font-mono">{step.step}</span>
-                    <Badge variant="primary" size="sm">{step.badge}</Badge>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center border border-rose-100">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900">{step.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{step.desc}</p>
-                </div>
-              </Card>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </section>
 
       {/* KEY FEATURES GRID */}
-      <section className="bg-white py-16 border-y border-slate-200">
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center space-y-3 max-w-2xl mx-auto">
             <Badge variant="primary" size="md">Smart Features</Badge>
-            <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-3xl font-black text-slate-100 tracking-tight">
               Engineered for Modern Smart Cities
             </h2>
-            <p className="text-slate-600 text-sm">
+            <p className="text-slate-400 text-sm">
               Cutting-edge tools for citizens, department officers, and municipal admins.
             </p>
           </div>
@@ -436,12 +482,12 @@ export default function Landing() {
             {features.map((feat, idx) => {
               const Icon = feat.icon;
               return (
-                <div key={idx} className="p-6 bg-slate-50/70 rounded-2xl border border-slate-200 space-y-3 hover:border-rose-300 transition-colors shadow-2xs">
-                  <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-xs shadow-rose-600/20">
+                <div key={idx} className="p-6 bg-slate-900/60 rounded-2xl border border-slate-800 space-y-3 hover:border-emerald-500/60 transition-colors shadow-md">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="text-base font-bold text-slate-900">{feat.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{feat.desc}</p>
+                  <h3 className="text-base font-bold text-slate-100">{feat.title}</h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">{feat.desc}</p>
                 </div>
               );
             })}
@@ -449,46 +495,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FINAL CALL TO ACTION BANNER */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-br from-rose-600 via-rose-600 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl shadow-rose-600/15 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-3 max-w-xl text-center md:text-left">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Ready to report a civic issue in your neighborhood?
-            </h2>
-            <p className="text-rose-100 text-xs sm:text-sm">
-              It takes less than a minute. Your report helps city officials fix potholes, streetlights, garbage, and water leaks faster.
-            </p>
-          </div>
-          <div className="flex items-center shrink-0">
-            <Link to="/citizen/report">
-              <button
-                type="button"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-black text-sm sm:text-base bg-white text-rose-700 hover:bg-rose-50 active:scale-95 shadow-lg transition-all duration-150 cursor-pointer"
-              >
-                <PlusCircle className="w-5 h-5 text-rose-600 shrink-0" />
-                <span>File a Complaint Now</span>
-                <ArrowRight className="w-4 h-4 text-rose-600 shrink-0" />
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* PLATFORM STATS */}
-      <section className="bg-slate-900 text-white py-12 rounded-3xl mx-4 sm:mx-6 lg:mx-8 border border-slate-800">
+      <section className="bg-slate-900/90 text-white py-12 rounded-3xl mx-4 sm:mx-6 lg:mx-8 mb-12 border border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
             {stats.map((stat, idx) => {
               const Icon = stat.icon;
               return (
                 <div key={idx} className="p-4 space-y-2">
-                  <div className="inline-flex p-2.5 bg-slate-800 rounded-xl text-rose-400 mb-1">
+                  <div className="inline-flex p-2.5 bg-slate-800 rounded-xl text-emerald-400 mb-1">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div className="text-3xl font-black tracking-tight text-white">{stat.value}</div>
                   <div className="text-sm font-medium text-slate-300">{stat.label}</div>
-                  <div className="text-xs text-rose-400 font-bold">{stat.change}</div>
+                  <div className="text-xs text-emerald-400 font-bold">{stat.change}</div>
                 </div>
               );
             })}

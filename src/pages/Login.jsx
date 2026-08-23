@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Mail, Lock, User, UserCheck, ShieldCheck, ArrowRight, Info } from 'lucide-react';
 import Button from '../components/common/Button';
@@ -26,6 +26,18 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    const userObj = {
+      name: selectedRole === 'citizen' ? 'Citizen User' : selectedRole === 'officer' ? 'Officer Kalai' : 'Admin Kanishk',
+      role: selectedRole,
+      email: email,
+      avatar: selectedRole === 'citizen' 
+        ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80' 
+        : selectedRole === 'officer' 
+        ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80' 
+        : 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80'
+    };
+    localStorage.setItem('civicconnect_user', JSON.stringify(userObj));
 
     setTimeout(() => {
       setIsLoading(false);
