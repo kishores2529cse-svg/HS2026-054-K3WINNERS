@@ -1,5 +1,5 @@
 ﻿import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Shield,
   PlusCircle,
@@ -33,6 +33,7 @@ import InteractiveCursor from '../components/landing/InteractiveCursor';
 import { StressedPersonGraphic, HappyPersonGraphic } from '../components/landing/StressedToHappyPerson';
 
 export default function Landing() {
+  const navigate = useNavigate();
   const containerRef = useRef(null);
 
   const [user, setUser] = useState(() => {
@@ -224,23 +225,21 @@ export default function Landing() {
             ) : (
               /* NOT LOGGED IN: LOG IN BUTTON */
               <div className="flex items-center gap-2">
-                <Link to="/login">
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold font-mono bg-slate-900 text-slate-200 border border-slate-700 hover:border-emerald-500 hover:text-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
-                  >
-                    <LogIn className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Log In</span>
-                  </button>
-                </Link>
-                <Link to="/register" className="hidden sm:inline-block">
-                  <button
-                    type="button"
-                    className="px-3.5 py-2 rounded-xl text-xs font-bold font-mono bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
-                  >
-                    Register
-                  </button>
-                </Link>
+                <button
+                  type="button"
+                  onClick={() => { window.scrollTo(0, 0); navigate('/login'); }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold font-mono bg-slate-900 text-slate-200 border border-slate-700 hover:border-emerald-500 hover:text-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  <LogIn className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Log In</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { window.scrollTo(0, 0); navigate('/register'); }}
+                  className="hidden sm:inline-block px-3.5 py-2 rounded-xl text-xs font-bold font-mono bg-emerald-500 text-slate-950 hover:bg-emerald-400 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  Register
+                </button>
               </div>
             )}
 
@@ -386,16 +385,18 @@ export default function Landing() {
               </div>
 
               <div className="shrink-0 w-full md:w-auto">
-                <Link to="/citizen/report">
-                  <button
-                    type="button"
-                    className="w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 text-slate-950 hover:from-emerald-300 hover:to-teal-200 active:scale-95 shadow-xl shadow-emerald-950/80 transition-all duration-200 cursor-pointer group-hover:scale-105"
-                  >
-                    <PlusCircle className="w-5 h-5 shrink-0" />
-                    <span>Report Now</span>
-                    <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.scrollTo(0, 0);
+                    navigate('/citizen/report');
+                  }}
+                  className="w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 text-slate-950 hover:from-emerald-300 hover:to-teal-200 active:scale-95 shadow-xl shadow-emerald-950/80 transition-all duration-200 cursor-pointer group-hover:scale-105"
+                >
+                  <PlusCircle className="w-5 h-5 shrink-0" />
+                  <span>Report Now</span>
+                  <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
             </div>
 
