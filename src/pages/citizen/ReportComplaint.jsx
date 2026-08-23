@@ -27,6 +27,7 @@ import Input from '../../components/common/Input';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import PageHeader from '../../components/common/PageHeader';
+import MapPinPickerModal from '../../components/common/MapPinPickerModal';
 import { analyzeComplaintText, calculatePriorityScore, checkDuplicateReports } from '../../utils/aiEngine';
 import { MOCK_CITIZEN_COMPLAINTS } from './CitizenDashboard';
 
@@ -102,6 +103,7 @@ export default function ReportComplaint() {
   const [imageFileName, setImageFileName] = useState('');
   const [isLocating, setIsLocating] = useState(false);
   const [showGpsModal, setShowGpsModal] = useState(false);
+  const [showMapPickerModal, setShowMapPickerModal] = useState(false);
   const [gpsCoords, setGpsCoords] = useState({ lat: 12.9716, lng: 77.5946 });
   const [isGpsPinned, setIsGpsPinned] = useState(false);
   const [pinnedDetails, setPinnedDetails] = useState(null);
@@ -177,6 +179,18 @@ export default function ReportComplaint() {
       }));
       setIsLocating(false);
     }, 500);
+  };
+
+  const handleConfirmMapPin = (pinnedData) => {
+    setGpsCoords({ lat: pinnedData.lat, lng: pinnedData.lng });
+    setFormData((prev) => ({ ...prev, location: pinnedData.address }));
+    setPinnedDetails({
+      fullAddress: pinnedData.address,
+      lat: pinnedData.lat,
+      lng: pinnedData.lng,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    });
+    setIsGpsPinned(true);
   };
 
   const applyAiCategory = () => {
@@ -514,6 +528,16 @@ export default function ReportComplaint() {
         </div>
 
       </form>
+
+      {/* GOOGLE MAP LIVE SPOT PIN PICKER MODAL */}
+      <MapPinPickerModal
+        isOpen={showMapPickerModal}
+        onClose={() => setShowMapPickerModal(false)}
+        initialLat={gpsCoords.lat}
+        initialLng={gpsCoords.lng}
+        initialAddress={formData.location}
+        onConfirmPin={handleConfirmMapPin}
+      />
 
       {/* ALLOW CURRENT LOCATION PERMISSION POPUP MODAL */}
       {showGpsModal && (
