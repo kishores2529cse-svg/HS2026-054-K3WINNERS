@@ -220,92 +220,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* PLATFORM STATS */}
-      <section className="bg-slate-900 text-white py-12 rounded-2xl mx-4 sm:mx-6 lg:mx-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
-            {stats.map((stat, idx) => {
-              const Icon = stat.icon;
-              return (
-                <div key={idx} className="p-4 space-y-2">
-                  <div className="inline-flex p-2.5 bg-slate-800 rounded-xl text-emerald-400 mb-1">
-                    <Icon className="w-6 h-6" />
-                  </div>
-                  <div className="text-3xl font-extrabold tracking-tight text-white">{stat.value}</div>
-                  <div className="text-sm font-medium text-slate-300">{stat.label}</div>
-                  <div className="text-xs text-emerald-400 font-semibold">{stat.change}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* HOW IT WORKS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        <div className="text-center space-y-3 max-w-2xl mx-auto">
-          <Badge variant="primary" size="md">Transparent Process</Badge>
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-            How CivicConnect Works
-          </h2>
-          <p className="text-slate-600 text-sm">
-            From citizen photo upload to field verification and final fix — designed for speed and accountability.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {workflowSteps.map((step, idx) => {
-            const Icon = step.icon;
-            return (
-              <Card key={idx} hoverEffect className="relative flex flex-col justify-between h-full">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-2xl font-black text-slate-300 font-mono">{step.step}</span>
-                    <Badge variant="primary" size="sm">{step.badge}</Badge>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900">{step.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{step.desc}</p>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* KEY FEATURES GRID */}
-      <section className="bg-white py-16 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <Badge variant="purple" size="md">Smart Features</Badge>
-            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
-              Engineered for Modern Smart Cities
-            </h2>
-            <p className="text-slate-600 text-sm">
-              Cutting-edge tools for citizens, department officers, and municipal admins.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feat, idx) => {
-              const Icon = feat.icon;
-              return (
-                <div key={idx} className="p-6 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3 hover:border-emerald-300 transition-colors">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900">{feat.title}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{feat.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* WORKFLOW BY ROLE SECTION */}
+      {/* WORKFLOW BY ROLE SECTION (Tailored Experiences for Every Stakeholder) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-3 max-w-2xl mx-auto">
           <Badge variant="info" size="md">Multi-Role Architecture</Badge>
@@ -471,6 +386,70 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <Badge variant="primary" size="md">Transparent Process</Badge>
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+            How CivicConnect Works
+          </h2>
+          <p className="text-slate-600 text-sm">
+            From citizen photo upload to field verification and final fix — designed for speed and accountability.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {workflowSteps.map((step, idx) => {
+            const Icon = step.icon;
+            return (
+              <Card key={idx} hoverEffect className="relative flex flex-col justify-between h-full">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-black text-slate-300 font-mono">{step.step}</span>
+                    <Badge variant="primary" size="sm">{step.badge}</Badge>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900">{step.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{step.desc}</p>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* KEY FEATURES GRID */}
+      <section className="bg-white py-16 border-y border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <Badge variant="purple" size="md">Smart Features</Badge>
+            <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+              Engineered for Modern Smart Cities
+            </h2>
+            <p className="text-slate-600 text-sm">
+              Cutting-edge tools for citizens, department officers, and municipal admins.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feat, idx) => {
+              const Icon = feat.icon;
+              return (
+                <div key={idx} className="p-6 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3 hover:border-emerald-300 transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900">{feat.title}</h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">{feat.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* FINAL CALL TO ACTION BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-8">
@@ -482,17 +461,38 @@ export default function Landing() {
               It takes less than a minute. Your report helps city officials fix potholes, streetlights, garbage, and water leaks faster.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+          <div className="flex items-center shrink-0">
             <Link to="/citizen/report">
-              <Button variant="primary" size="lg" className="bg-white text-emerald-800 hover:bg-emerald-50">
-                File a Complaint Now
-              </Button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-extrabold text-sm sm:text-base bg-white text-emerald-900 hover:bg-emerald-50 active:scale-95 shadow-lg transition-all duration-150 cursor-pointer"
+              >
+                <PlusCircle className="w-5 h-5 text-emerald-700 shrink-0" />
+                <span>File a Complaint Now</span>
+                <ArrowRight className="w-4 h-4 text-emerald-600 shrink-0" />
+              </button>
             </Link>
-            <Link to="/register">
-              <Button variant="outline" size="lg" className="border-emerald-300 text-white hover:bg-emerald-800/50">
-                Create Account
-              </Button>
-            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* PLATFORM STATS (Placed at the last) */}
+      <section className="bg-slate-900 text-white py-12 rounded-2xl mx-4 sm:mx-6 lg:mx-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center divide-y lg:divide-y-0 lg:divide-x divide-slate-800">
+            {stats.map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <div key={idx} className="p-4 space-y-2">
+                  <div className="inline-flex p-2.5 bg-slate-800 rounded-xl text-emerald-400 mb-1">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <div className="text-3xl font-extrabold tracking-tight text-white">{stat.value}</div>
+                  <div className="text-sm font-medium text-slate-300">{stat.label}</div>
+                  <div className="text-xs text-emerald-400 font-semibold">{stat.change}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
