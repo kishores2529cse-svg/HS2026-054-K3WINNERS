@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
@@ -18,8 +18,6 @@ import {
   Layers,
   ChevronRight,
   ShieldAlert,
-  ExternalLink,
-  Lock,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -27,7 +25,6 @@ import Input from '../../components/common/Input';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import PageHeader from '../../components/common/PageHeader';
-import MapPinPickerModal from '../../components/common/MapPinPickerModal';
 import { analyzeComplaintText, calculatePriorityScore, checkDuplicateReports } from '../../utils/aiEngine';
 import { MOCK_CITIZEN_COMPLAINTS } from './CitizenDashboard';
 
@@ -102,11 +99,6 @@ export default function ReportComplaint() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imageFileName, setImageFileName] = useState('');
   const [isLocating, setIsLocating] = useState(false);
-  const [showGpsModal, setShowGpsModal] = useState(false);
-  const [showMapPickerModal, setShowMapPickerModal] = useState(false);
-  const [gpsCoords, setGpsCoords] = useState({ lat: 12.9716, lng: 77.5946 });
-  const [isGpsPinned, setIsGpsPinned] = useState(false);
-  const [pinnedDetails, setPinnedDetails] = useState(null);
   const [aiSuggestedCategory, setAiSuggestedCategory] = useState(null);
   const [aiScore, setAiScore] = useState(65);
   const [duplicateWarning, setDuplicateWarning] = useState(null);
@@ -179,18 +171,6 @@ export default function ReportComplaint() {
       }));
       setIsLocating(false);
     }, 500);
-  };
-
-  const handleConfirmMapPin = (pinnedData) => {
-    setGpsCoords({ lat: pinnedData.lat, lng: pinnedData.lng });
-    setFormData((prev) => ({ ...prev, location: pinnedData.address }));
-    setPinnedDetails({
-      fullAddress: pinnedData.address,
-      lat: pinnedData.lat,
-      lng: pinnedData.lng,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    });
-    setIsGpsPinned(true);
   };
 
   const applyAiCategory = () => {
@@ -417,115 +397,27 @@ export default function ReportComplaint() {
               />
             </div>
 
-            {/* GPS DETECT & GOOGLE MAP LIVE PIN ACCESS BAR */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3.5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-3 text-xs text-slate-700">
-                  <div className="p-2.5 bg-rose-100 text-rose-700 rounded-xl border border-rose-200 shrink-0">
-                    <Compass className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <strong className="text-slate-900 text-sm font-bold block">GPS & Google Maps Spot Location Access</strong>
-                    <p className="text-slate-500 text-xs">
-                      Pin your current spot live on Google Map or auto-detect via GPS. Coordinates remain permanently saved even after moving home.
-                    </p>
-                  </div>
+            {/* GPS Detect Location Button */}
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 text-xs text-slate-700">
+                <div className="p-1.5 bg-rose-100 text-rose-700 rounded-lg">
+                  <Compass className="w-4 h-4" />
                 </div>
-
-                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="md"
-                    onClick={() => setShowMapPickerModal(true)}
-                    icon={MapPin}
-                    className="shadow-xs cursor-pointer bg-white hover:bg-rose-50 text-rose-700 border-rose-300 font-bold"
-                  >
-                    Pin Location on Google Map
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={isGpsPinned ? "primary" : "outline"}
-                    size="md"
-                    onClick={handleConfirmAllowLocation}
-                    isLoading={isLocating}
-                    icon={RefreshCw}
-                    className="shadow-xs cursor-pointer"
-                  >
-                    {isGpsPinned ? "Re-Ping GPS Spot Location" : "Detect GPS Location"}
-                  </Button>
+                <div>
+                  <strong className="text-slate-900">GPS Auto-Detect Location</strong>
+                  <p className="text-slate-500 text-[11px]">Pinpoint exact coordinates for field inspection teams</p>
                 </div>
               </div>
-
-              {/* PINNED LOCATION CONFIRMATION & GOOGLE MAPS CARD */}
-              {isGpsPinned && gpsCoords && (
-                <div className="p-4 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white rounded-xl border border-emerald-500/50 shadow-md space-y-3 animate-in fade-in zoom-in-95">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-900/80 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                      <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-                        📍 SPOT LOCATION SAVED & LOCKED
-                      </span>
-                      <span className="text-[10px] bg-emerald-900/80 text-emerald-300 px-2 py-0.5 rounded font-mono">
-                        {pinnedDetails?.time || "Just now"}
-                      </span>
-                    </div>
-
-                    <a
-                      href={`https://www.google.com/maps?q=${gpsCoords.lat},${gpsCoords.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-lg transition-all shadow-xs cursor-pointer"
-                    >
-                      <span>Open Google Maps</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <span className="text-slate-400 text-[11px] block">Captured Street Address:</span>
-                      <strong className="text-slate-100 font-semibold leading-snug block mt-0.5">
-                        {formData.location}
-                      </strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 text-[11px] block">Exact GPS Coordinates:</span>
-                      <div className="font-mono font-bold text-emerald-300 mt-0.5 flex items-center gap-2">
-                        <span>{gpsCoords.lat.toFixed(5)}° N, {gpsCoords.lng.toFixed(5)}° E</span>
-                        <span className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
-                          🔒 Saved
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* GOOGLE MAPS EMBEDDED MAP PREVIEW */}
-                  <div className="mt-2 rounded-lg overflow-hidden border border-emerald-900/60 bg-slate-950 h-36 relative">
-                    <iframe
-                      title="Google Maps Location Preview"
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      scrolling="no"
-                      marginHeight="0"
-                      marginWidth="0"
-                      src={`https://maps.google.com/maps?q=${gpsCoords.lat},${gpsCoords.lng}&z=16&output=embed`}
-                      className="opacity-90 hover:opacity-100 transition-opacity"
-                    />
-                    <div className="absolute top-2 left-2 bg-slate-950/80 backdrop-blur-xs text-emerald-400 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-emerald-800">
-                      📍 Live Google Maps Spot Pin
-                    </div>
-                  </div>
-
-                  <p className="text-[11px] text-emerald-200/80 bg-emerald-950/60 p-2.5 rounded-lg border border-emerald-900/50 flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>
-                      Address & GPS coordinates locked for this ticket. Even if you move home or travel elsewhere, officers will dispatch to this exact spot.
-                    </span>
-                  </p>
-                </div>
-              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSimulateGPS}
+                isLoading={isLocating}
+                icon={RefreshCw}
+              >
+                Detect GPS Location
+              </Button>
             </div>
 
             {/* DUPLICATE REPORT ALERT */}
@@ -617,57 +509,6 @@ export default function ReportComplaint() {
 
       </form>
 
-      {/* GOOGLE MAP LIVE SPOT PIN PICKER MODAL */}
-      <MapPinPickerModal
-        isOpen={showMapPickerModal}
-        onClose={() => setShowMapPickerModal(false)}
-        initialLat={gpsCoords.lat}
-        initialLng={gpsCoords.lng}
-        initialAddress={formData.location}
-        onConfirmPin={handleConfirmMapPin}
-      />
-
-      {/* ALLOW CURRENT LOCATION PERMISSION POPUP MODAL */}
-      {showGpsModal && (
-        <Modal
-          isOpen={showGpsModal}
-          onClose={() => setShowGpsModal(false)}
-          title="Location Permission Request"
-          subtitle="CivicConnect wants to access your current physical location"
-          primaryAction={{
-            label: 'Allow Current Location',
-            onClick: handleConfirmAllowLocation,
-            variant: 'primary',
-          }}
-          secondaryAction={{
-            label: 'Cancel',
-            onClick: () => setShowGpsModal(false),
-          }}
-        >
-          <div className="space-y-4 text-center py-2">
-            <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto shadow-sm">
-              <Compass className="w-9 h-9 animate-spin" />
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-base font-bold text-slate-900">Allow CivicConnect to access your location?</h4>
-              <p className="text-xs text-slate-600 leading-relaxed max-w-sm mx-auto">
-                By clicking <strong>"Allow Current Location"</strong>, your browser will capture your exact physical spot address and GPS coordinates through Google Maps reference.
-              </p>
-            </div>
-
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-2">
-              <div className="flex items-center gap-2 text-rose-700 font-bold">
-                <Lock className="w-4 h-4" />
-                <span>Permanent Spot Address Guarantee</span>
-              </div>
-              <p className="text-slate-500 text-[11px] leading-relaxed">
-                Once captured, this exact spot address remains permanently saved for your report. Even if you return to your home or travel elsewhere, officers will navigate directly to this spot.
-              </p>
-            </div>
-          </div>
-        </Modal>
-      )}
-
       {/* SUCCESS CONFIRMATION MODAL */}
       {submittedTicket && (
         <Modal
@@ -734,4 +575,3 @@ export default function ReportComplaint() {
     </div>
   );
 }
-
