@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   UploadCloud,
@@ -9,6 +9,11 @@ import {
   Image as ImageIcon,
   ArrowRight,
   Shield,
+  X,
+  RefreshCw,
+  Search,
+  Compass,
+  FileCheck,
 } from 'lucide-react';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
@@ -16,14 +21,15 @@ import Input from '../../components/common/Input';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import PageHeader from '../../components/common/PageHeader';
+import { analyzeComplaintText, calculatePriorityScore, checkDuplicateReports } from '../../utils/aiEngine';
+import { MOCK_CITIZEN_COMPLAINTS } from './CitizenDashboard';
 
 const CATEGORIES = [
   'Garbage & Waste',
   'Road Infrastructure & Potholes',
   'Electrical & Streetlights',
-  'Water Supply & Leakage',
-  'Drainage & Sewage',
-  'Public Transport & Stop Hazard',
+  'Water Supply & Sewage',
+  'Drainage & Flooding',
   'Other Civic Concern',
 ];
 
@@ -33,23 +39,79 @@ export default function ReportComplaint() {
     title: '',
     category: CATEGORIES[0],
     description: '',
-    location: '',
+    location: '4th Cross, Indiranagar',
     ward: 'Ward 14 (Indiranagar)',
     urgency: 'Medium',
   });
+  
   const [selectedImage, setSelectedImage] = useState(null);
+  const [imageFileName, setImageFileName] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
+  const [aiSuggestedCategory, setAiSuggestedCategory] = useState(null);
+  const [aiScore, setAiScore] = useState(65);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [submittedTicketId, setSubmittedTicketId] = useState('');
+  const [submittedTicket, setSubmittedTicket] = useState(null);
+
+  // Recalculate AI score & check duplicates on change
+  useEffect(() => {
+    const score = calculatePriorityScore({
+      category: formData.category,
+      urgencyLevel: formData.urgency,
+      title: formData.title,
+      description: formData.description,
+    });
+    setAiScore(score);
+
+    if (formData.description.length > 10) {
+      const aiAnalysis = analyzeComplaintText(`${formData.title} ${formData.description}`);
+      if (aiAnalysis.confidenceScore > 60 && aiAnalysis.suggestedCategory !== formData.category) {
+        setAiSuggestedCategory(aiAnalysis.suggestedCategory);
+      } else {
+        setAiSuggestedCategory(null);
+      }
+    }
+
+    if (formData.location.length > 5) {
+      const dup = checkDuplicateReports(formData, MOCK_CITIZEN_COMPLAINTS);
+      setDuplicateWarning(dup.isDuplicate ? dup : null);
+    }
+  }, [formData]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFakeImageUpload = (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedImage(URL.createObjectURL(file));
+      setImageFileName(file.name);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImageFileName('');
+  };
+
+  const handleSimulateGPS = () => {
+    setIsLocating(true);
+    setTimeout(() => {
+      setFormData((prev) => ({
+        ...prev,
+        location: 'MG Road Metro Exit, Ward 12',
+        ward: 'Ward 12 (MG Road Sector)',
+      }));
+      setIsLocating(false);
+    }, 600);
+  };
+
+  const applyAiCategory = () => {
+    if (aiSuggestedCategory) {
+      setFormData((prev) => ({ ...prev, category: aiSuggestedCategory }));
+      setAiSuggestedCategory(null);
     }
   };
 
@@ -57,10 +119,20 @@ export default function ReportComplaint() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call + AI categorization processing
     setTimeout(() => {
       const generatedId = `CC-${Math.floor(1000 + Math.random() * 9000)}`;
-      setSubmittedTicketId(generatedId);
+      const newTicket = {
+        id: generatedId,
+        title: formData.title,
+        category: formData.category,
+        location: formData.location,
+        ward: formData.ward,
+        urgency: formData.urgency,
+        priorityScore: aiScore,
+        officer: 'S. Ramesh (Sanitation & Works Inspector)',
+        date: new Date().toISOString().split('T')[0],
+      };
+      setSubmittedTicket(newTicket);
       setIsSubmitting(false);
       setShowSuccessModal(true);
     }, 800);
@@ -72,42 +144,55 @@ export default function ReportComplaint() {
       {/* HEADER */}
       <PageHeader
         title="Report a Civic Issue"
-        description="Provide details, upload photo evidence, and pinpoint location. AI will categorize and route your complaint to the correct municipal team."
+        description="Fill out the complaint details, attach photo evidence, and pinpoint location. Our AI engine auto-scores urgency and dispatches the task."
         breadcrumbs={[
           { label: 'Citizen Portal', href: '/citizen/dashboard' },
           { label: 'Report Issue' },
         ]}
-        badge={<Badge variant="primary">AI Smart Dispatch</Badge>}
+        badge={<Badge variant="primary">AI Smart Processing</Badge>}
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         
         {/* STEP 1: COMPLAINT DETAILS */}
-        <Card
-          title="1. Issue Details & Category"
-          subtitle="Be descriptive so officials understand the urgency"
-        >
+        <Card title="1. Issue Details & Category" subtitle="Be descriptive for faster officer dispatch">
           <div className="space-y-4">
             <Input
               label="Complaint Title"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g. Deep pothole on 4th Cross Road causing traffic congestion"
+              placeholder="e.g. Broken streetlight causing dark alley hazard"
               required
-              helperText="Short summary of the civic problem"
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                label="Issue Category"
-                type="select"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                options={CATEGORIES}
-                required
-              />
+              <div>
+                <Input
+                  label="Issue Category"
+                  type="select"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  options={CATEGORIES}
+                  required
+                />
+                {aiSuggestedCategory && (
+                  <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-xs text-emerald-800">
+                    <span className="flex items-center gap-1">
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                      AI Suggestion: <strong>{aiSuggestedCategory}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={applyAiCategory}
+                      className="text-[11px] font-bold text-emerald-700 underline hover:text-emerald-900"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <Input
                 label="Urgency Level"
@@ -118,7 +203,7 @@ export default function ReportComplaint() {
                 options={[
                   { label: 'Low - Routine Maintenance', value: 'Low' },
                   { label: 'Medium - Needs Attention Soon', value: 'Medium' },
-                  { label: 'High - Immediate Hazard / Danger', value: 'High' },
+                  { label: 'High - Urgent Hazard / Danger', value: 'High' },
                 ]}
                 required
               />
@@ -131,18 +216,26 @@ export default function ReportComplaint() {
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              placeholder="Provide additional context (e.g. dimensions, landmarks, safety risks, duration)..."
+              placeholder="Describe the issue (landmarks, safety risks, duration)..."
               required
             />
+
+            {/* AI Real-time Priority Preview Card */}
+            <div className="p-3 bg-slate-900 text-white rounded-xl flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span>Real-time AI Priority Score:</span>
+                <span className="font-mono font-extrabold text-emerald-400 text-sm">{aiScore}/100</span>
+              </div>
+              <Badge variant={aiScore > 75 ? 'danger' : aiScore > 50 ? 'warning' : 'success'} size="sm">
+                {aiScore > 75 ? 'High Priority' : aiScore > 50 ? 'Medium Priority' : 'Standard'}
+              </Badge>
+            </div>
           </div>
         </Card>
 
-        {/* STEP 2: LOCATION */}
-        <Card
-          title="2. Location & Geo-Tagging"
-          subtitle="Pinpoint exact coordinates or specify ward"
-          headerIcon={MapPin}
-        >
+        {/* STEP 2: LOCATION & GEO-TAGGING */}
+        <Card title="2. Location & Geo-Tagging" subtitle="Specify address and ward zone" headerIcon={MapPin}>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
@@ -151,7 +244,7 @@ export default function ReportComplaint() {
                 icon={MapPin}
                 value={formData.location}
                 onChange={handleChange}
-                placeholder="e.g. Opposite City Supermarket, MG Road"
+                placeholder="e.g. Near Community Hall, Ward 14"
                 required
               />
 
@@ -171,64 +264,76 @@ export default function ReportComplaint() {
               />
             </div>
 
-            {/* Map pin visual placeholder */}
-            <div className="p-4 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-emerald-600 rounded-lg text-white">
-                  <MapPin className="w-5 h-5" />
-                </div>
-                <div className="text-xs">
-                  <div className="font-bold text-white">GPS Auto-Location Target</div>
-                  <div className="text-slate-400">Lat: 12.9716° N, Long: 77.5946° E (Precision: ± 3m)</div>
+            {/* Simulated GPS Button */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 text-xs text-slate-700">
+                <Compass className="w-5 h-5 text-emerald-600 shrink-0" />
+                <div>
+                  <strong>GPS Auto-Detect Location</strong>
+                  <p className="text-slate-500 text-[11px]">Pinpoint current device location coordinates</p>
                 </div>
               </div>
-              <Badge variant="success" size="sm">GPS Verified</Badge>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleSimulateGPS}
+                isLoading={isLocating}
+                icon={RefreshCw}
+              >
+                Detect GPS Location
+              </Button>
             </div>
+
+            {/* DUPLICATE REPORT ALERT */}
+            {duplicateWarning && (
+              <div className="p-4 bg-amber-50 border border-amber-300 rounded-xl flex items-start gap-3 text-xs text-amber-900">
+                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="font-bold">Possible Duplicate Report Detected!</strong>
+                  <p className="mt-0.5">
+                    An existing active complaint (<strong>{duplicateWarning.masterTicketId}</strong>: "{duplicateWarning.existingTitle}") is registered within {duplicateWarning.distanceMetres}m. Submitting will link your report to strengthen priority!
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </Card>
 
-        {/* STEP 3: PHOTO UPLOAD */}
-        <Card
-          title="3. Upload Photo Evidence"
-          subtitle="Photos help AI categorize and verify physical civic damage"
-          headerIcon={ImageIcon}
-        >
+        {/* STEP 3: PHOTO EVIDENCE */}
+        <Card title="3. Upload Photo Evidence" subtitle="Image uploads speed up field verification" headerIcon={ImageIcon}>
           <div className="space-y-4">
-            <div className="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-8 text-center bg-slate-50/50 transition-colors cursor-pointer relative">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFakeImageUpload}
-                className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-              />
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <UploadCloud className="w-6 h-6" />
+            {!selectedImage ? (
+              <div className="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-2xl p-8 text-center bg-slate-50/50 transition-colors cursor-pointer relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                />
+                <div className="flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <UploadCloud className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-800">Drag & drop photo here or click to browse</h4>
+                  <p className="text-xs text-slate-500">Supports JPG, PNG, WEBP up to 10MB</p>
                 </div>
-                <h4 className="text-sm font-bold text-slate-800">
-                  {selectedImage ? 'Photo selected! Click to replace' : 'Drag & drop image here or click to browse'}
-                </h4>
-                <p className="text-xs text-slate-500">Supports JPG, PNG, WEBP up to 10MB</p>
               </div>
-            </div>
-
-            {selectedImage && (
-              <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-900 p-2 max-w-xs mx-auto text-center">
-                <img src={selectedImage} alt="Selected Preview" className="max-h-48 rounded-lg mx-auto object-cover" />
-                <p className="text-[11px] text-emerald-400 mt-2 font-medium">✓ Image Attached for AI Visual Audit</p>
+            ) : (
+              <div className="relative bg-slate-900 text-white rounded-xl p-4 max-w-sm mx-auto text-center space-y-3">
+                <img src={selectedImage} alt="Uploaded Issue" className="max-h-48 rounded-lg mx-auto object-cover" />
+                <div className="flex items-center justify-between text-xs px-2">
+                  <span className="text-slate-300 truncate max-w-[200px]">{imageFileName}</span>
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="p-1 bg-rose-600 hover:bg-rose-700 text-white rounded-md flex items-center gap-1"
+                  >
+                    <X className="w-3.5 h-3.5" /> Remove
+                  </button>
+                </div>
               </div>
             )}
-
-            {/* AI Classification Simulation Note */}
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-start gap-3 text-xs text-emerald-950">
-              <Sparkles className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-              <div>
-                <strong className="font-bold">AI Duplicate Protection:</strong>
-                <p className="text-emerald-800 mt-0.5">
-                  Upon submission, AI checks for existing reports within 50 meters to prevent duplicate work tickets and fast-track resolution.
-                </p>
-              </div>
-            </div>
           </div>
         </Card>
 
@@ -252,37 +357,42 @@ export default function ReportComplaint() {
       </form>
 
       {/* SUCCESS CONFIRMATION MODAL */}
-      <Modal
-        isOpen={showSuccessModal}
-        onClose={() => {
-          setShowSuccessModal(false);
-          navigate('/citizen/dashboard');
-        }}
-        title="Complaint Submitted Successfully!"
-        subtitle={`Ticket ID: ${submittedTicketId}`}
-        primaryAction={{
-          label: 'Go to Dashboard',
-          onClick: () => {
+      {submittedTicket && (
+        <Modal
+          isOpen={showSuccessModal}
+          onClose={() => {
             setShowSuccessModal(false);
             navigate('/citizen/dashboard');
-          },
-        }}
-      >
-        <div className="space-y-4 text-center py-2">
-          <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-8 h-8" />
+          }}
+          title="Complaint Logged Successfully!"
+          subtitle={`Ticket ID: ${submittedTicket.id}`}
+          primaryAction={{
+            label: 'View My Complaints',
+            onClick: () => {
+              setShowSuccessModal(false);
+              navigate('/citizen/complaints');
+            },
+          }}
+        >
+          <div className="space-y-4 text-center py-2">
+            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-8 h-8" />
+            </div>
+            <p className="text-xs text-slate-600">
+              Your report has been received and processed by the AI dispatch engine.
+            </p>
+            <div className="p-4 bg-slate-50 rounded-xl text-left text-xs space-y-2 border border-slate-200">
+              <div><strong>Title:</strong> {submittedTicket.title}</div>
+              <div><strong>Category:</strong> {submittedTicket.category}</div>
+              <div><strong>Ward Location:</strong> {submittedTicket.location}</div>
+              <div className="flex justify-between items-center pt-1 border-t border-slate-200">
+                <span>AI Priority Score: <strong className="text-emerald-700">{submittedTicket.priorityScore}/100</strong></span>
+                <Badge variant="primary" size="sm">Assigned: {submittedTicket.officer}</Badge>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-slate-600 leading-relaxed">
-            Your complaint has been logged and auto-routed by AI to the designated Zonal Field Inspector. You will receive real-time notifications on progress.
-          </p>
-          <div className="p-3 bg-slate-50 rounded-xl text-left text-xs space-y-1.5 border border-slate-200">
-            <div><strong>Title:</strong> {formData.title || 'Civic Issue'}</div>
-            <div><strong>Category:</strong> {formData.category}</div>
-            <div><strong>Ward:</strong> {formData.ward}</div>
-            <div><strong>Assigned Department:</strong> Municipal Works Dept</div>
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      )}
 
     </div>
   );
